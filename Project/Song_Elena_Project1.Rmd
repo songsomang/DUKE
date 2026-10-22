@@ -1,0 +1,215 @@
+---
+title: "Project 1"
+author: "Elena Song"
+date: "2026-10-14"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+
+```{r load-packages, include=FALSE}
+# Load packages for data manipulation, file paths, dates, and table creation
+library(tidyverse)
+library(here)
+library(gt)
+library(gtsummary)
+library(lubridate)
+```
+
+
+```{r import-data, include=FALSE}
+# Import patient-level and encounter-level datasets using project-relative paths
+patient <- read_csv(here("Data", "PatientData-2.csv"))
+encounter <- read_csv(here("Data", "EncounterData-2.csv"))
+```
+
+
+```{r explore-data, include=FALSE}
+# Examine dataset dimensions, variable names, and data types
+dim(patient)
+dim(encounter)
+
+names(patient)
+names(encounter)
+
+glimpse(patient)
+glimpse(encounter)
+
+# Check missing values and identify potentially implausible values
+colSums(is.na(patient))
+colSums(is.na(encounter))
+
+summary(encounter)
+
+sum(encounter$BMI < 0, na.rm = TRUE)
+sum(encounter$WBC < 1, na.rm = TRUE)
+
+# Confirm MRN can be used as the patient identifier for merging
+n_distinct(patient$MRN)
+n_distinct(encounter$MRN)
+
+patient |>
+  count(MRN) |>
+  filter(n > 1)
+```
+
+
+```{r merge-data, include=FALSE}
+# Add patient-level characteristics to each encounter using MRN
+analytic <- encounter |>
+  left_join(patient, by = "MRN")
+```
+
+## Analytic Dataset  
+The analytic dataset contains 550 rows and 14 variables. Each row represents one patient encounter. The dataset combines encounter-level information, including encounter type, temperature, distress score, WBC, and BMI, with patient-level demographic and clinical characteristics, including race, ethnicity, financial class, hypertension, CHF, and diabetes.  
+
+&nbsp;
+
+## Data Cleaning  
+The patient-level dataset contained no missing values. In the encounter-level dataset, 53 distress scores and 86 BMI values were missing. Six additional BMI values were negative and therefore considered implausible; these values were recoded as missing. Dates were converted from character strings to date variables. Fourteen WBC values were below the limit of detection and were set to 1 as specified in the project instructions.
+
+```{r clean-data, include=FALSE}
+# Convert date variables from character strings to date format
+analytic <- analytic |>
+  mutate(
+    DOB = mdy(DOB),
+    contact_date = mdy(contact_date)
+  )
+
+glimpse(analytic)
+
+# Recode negative BMI values as missing because they are implausible
+analytic <- analytic |>
+  mutate(
+    BMI = if_else(BMI < 0, NA_real_, BMI)
+  )
+
+summary(analytic$BMI)
+
+# Replace WBC values below the limit of detection (<1) with 1
+analytic <- analytic |>
+  mutate(
+    WBC = if_else(WBC < 1, 1, WBC)
+  )
+
+summary(analytic$WBC)
+sum(analytic$WBC < 1, na.rm = TRUE)
+
+# Categorize WBC according to the project-specified cut points
+analytic <- analytic |>
+  mutate(
+    WBC_group = case_when(
+      is.na(WBC) ~ "Not Taken",
+      WBC < 3.2 ~ "Low",
+      WBC <= 9.8 ~ "Normal",
+      WBC > 9.8 ~ "High"
+    )
+  )
+
+table(analytic$WBC_group, useNA = "ifany")
+
+# Set WBC categories in a logical order for reporting
+analytic <- analytic |>
+  mutate(
+    WBC_group = factor(
+      WBC_group,
+      levels = c("Low", "Normal", "High", "Not Taken")
+    )
+  )
+
+table(analytic$WBC_group)
+```
+
+&nbsp;
+
+## WBC Summary Table  
+WBC was categorized as Low (<3.2), Normal (3.2–9.8), High (>9.8), or Not Taken. The table below summarizes the distribution of WBC categories across encounters.
+
+```{r wbc-table}
+# Calculate encounter counts and percentages for each WBC category
+wbc_table <- analytic |>
+  count(WBC_group, .drop = FALSE) |>
+  mutate(
+    percent = paste0(round(n / sum(n) * 100, 1), "%")
+  )
+
+# Format the WBC summary table for presentation
+wbc_table |>
+  gt() |>
+  cols_label(
+    WBC_group = "WBC Group",
+    n = "Count",
+    percent = "Percent"
+  )
+```
+&nbsp;
+
+## Patient Characteristics  
+Table 1 summarizes demographic and clinical characteristics for the 50 unique patients in the patient-level dataset. Counts and percentages are presented for race, ethnicity, financial class, hypertension, congestive heart failure, and diabetes.
+
+
+```{r table-one}
+# Recode clinical variables with readable labels for Table 1
+patient |>
+  mutate(
+    ethnicity = recode(
+      ethnicity,
+      "non-Hispanic" = "Non-Hispanic"
+    ),
+    hypertension = recode(
+      hypertension,
+      "N" = "No",
+      "Y" = "Yes"
+    ),
+    CHF = recode(
+      CHF,
+      "N" = "No",
+      "Y" = "Yes"
+    ),
+    diabetes = recode(
+      diabetes,
+      "N" = "No",
+      "Y" = "Yes"
+    )
+  ) |>
+  select(
+    race,
+    ethnicity,
+    financialclass,
+    hypertension,
+    CHF,
+    diabetes
+  ) |>
+  tbl_summary(
+    type = all_categorical() ~ "categorical",
+    statistic = all_categorical() ~ "{n} ({p}%)",
+    label = list(
+      race ~ "Race",
+      ethnicity ~ "Ethnicity",
+      financialclass ~ "Financial Class",
+      hypertension ~ "Hypertension",
+      CHF ~ "Congestive Heart Failure",
+      diabetes ~ "Diabetes"
+    )
+  )
+```
+&nbsp;
+
+## Software Versions
+```{r software-versions, include=FALSE}
+# Record the R and package versions used for reproducibility
+R.version.string
+packageVersion("tidyverse")
+packageVersion("here")
+packageVersion("lubridate")
+packageVersion("gt")
+packageVersion("gtsummary")
+```
+This analysis was conducted using R version 4.5.2. The following package versions were used: tidyverse 2.0.0, here 1.0.2, lubridate 1.9.5, gt 1.3.0, and gtsummary 2.6.1.
