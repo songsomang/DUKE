@@ -2,7 +2,7 @@
 title: "Project 1"
 author: "Elena Song"
 date: "2026-10-14"
-output: word_document
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
