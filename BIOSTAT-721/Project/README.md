@@ -25,7 +25,7 @@ The project distinguishes between patient-level summaries and encounter-level su
 
 ## View the Report
 
-[Open the formatted HTML report](https://songsomang.github.io/DUKE/DUKE%20721/Project/Song_Elena_Project1.html)
+[Open the formatted HTML report](https://songsomang.github.io/DUKE/BIOSTAT-721/Project/Song_Elena_Project1.html)
 
 ## Files
 
