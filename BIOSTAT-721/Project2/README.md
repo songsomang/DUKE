@@ -22,6 +22,7 @@ This project is located at `BIOSTAT-721/Project2/` in the `DUKE` repository.
 
 ```text
 DUKE/
+├── DUKE.Rproj
 └── BIOSTAT-721/
     ├── Project1/
     └── Project2/
@@ -29,12 +30,9 @@ DUKE/
         │   ├── AQ_2018.csv
         │   ├── AQ_2019.csv
         │   └── AQ_2020.csv
-        ├── R/
-        │   └── process_air_quality.R
-        ├── report/
-        │   ├── air_quality_report.Rmd
-        │   └── air_quality_report.docx
-        ├── BIOSTAT-721-Project-2.Rproj
+        ├── process_air_quality.R
+        ├── air_quality_report.Rmd
+        ├── air_quality_report.docx
         └── README.md
 ```
 
