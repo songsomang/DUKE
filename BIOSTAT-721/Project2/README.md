@@ -36,6 +36,15 @@ DUKE/
         │   └── air_quality_report.docx
         ├── BIOSTAT-721-Project-2.Rproj
         └── README.md
+```
+
+## How to reproduce
+
+1. Open `DUKE.Rproj` at the repository root in RStudio.
+2. Install the packages used by the analysis: `tidyverse`, `here`, `rmarkdown`, and `lintr`.
+3. Render `BIOSTAT-721/Project2/report/air_quality_report.Rmd` to Microsoft Word. The report will use the function in `BIOSTAT-721/Project2/R/process_air_quality.R` and the CSV files in `BIOSTAT-721/Project2/data/`.
+
+`lintr` is used for code-style checks and is not required to render the report.
 
 ## Author and date
 Author: Elena Song
