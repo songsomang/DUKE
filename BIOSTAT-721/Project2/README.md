@@ -30,7 +30,6 @@ DUKE/
         │   ├── AQ_2018.csv
         │   ├── AQ_2019.csv
         │   └── AQ_2020.csv
-        ├── process_air_quality.R
         ├── air_quality_report.Rmd
         ├── air_quality_report.docx
         └── README.md
