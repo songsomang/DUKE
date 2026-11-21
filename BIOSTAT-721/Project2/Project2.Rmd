@@ -418,3 +418,7 @@ Across the pooled years, the monthly mean for CO was highest in `r co_high_month
 # AI use statement
 
 I used ChatGPT to help plan the workflow and revise and debug the R code. I checked the code against the project instructions and reviewed the knitted tables and plots.
+
+&nbsp;
+
+**GitHub repository:** [BIOSTAT 721 Project 2](https://github.com/songsomang/DUKE/tree/main/BIOSTAT-721/Project2)
